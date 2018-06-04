@@ -1,12 +1,20 @@
-﻿using System;
-using System.Configuration;
+﻿using System.Configuration;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 
 namespace EFCoreReview.Data.Models
 {
     public partial class NorthwindContext : DbContext
     {
+        public static readonly LoggerFactory MyLoggerFactory
+            = new LoggerFactory(new[]
+            {
+        new ConsoleLoggerProvider((category, level)
+            => category == DbLoggerCategory.Database.Command.Name
+               && level == LogLevel.Information, true)
+            });
+
         public NorthwindContext()
         {
         }
@@ -34,7 +42,9 @@ namespace EFCoreReview.Data.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["NorthwindDb"].ConnectionString);
+                optionsBuilder
+                    .UseLoggerFactory(MyLoggerFactory)
+                    .UseSqlServer(ConfigurationManager.ConnectionStrings["NorthwindDb"].ConnectionString);
             }
         }
 

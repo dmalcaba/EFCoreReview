@@ -1,5 +1,4 @@
 ﻿using EFCoreReview.Data.Models;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 
@@ -18,6 +17,8 @@ namespace EFCoreReview.App
             using (var context = new NorthwindContext())
             {
                 var categories = context.Categories.ToList();
+
+                Console.WriteLine(); // add a blank space to separate log information from output
 
                 foreach (var category in categories)
                 {
