@@ -13,7 +13,8 @@ namespace EFCoreReview.App
             //TestEFCore();
             //TestOverride();
             //ReviewQuery();
-            AggregateFunctions.ReviewSum();
+            //AggregateFunctions.ReviewSum();
+            RandomQueries.ReturnOnlyOneColumn();
             Console.ReadLine();
         }
 
