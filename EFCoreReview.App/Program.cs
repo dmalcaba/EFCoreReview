@@ -10,27 +10,16 @@ namespace EFCoreReview.App
     {
         static void Main(string[] args)
         {
-            //TestEFCore();
             //TestOverride();
-            //ReviewQuery();
             //AggregateFunctions.ReviewSum();
-            RandomQueries.ReturnOnlyOneColumn();
-            Console.ReadLine();
-        }
+            //RandomQueries.ReturnOnlyOneColumn();
+            //RandomQueries.TestQuery();
+            //RandomQueries.PassingNullWhereValue();
 
-        static void TestEFCore()
-        {
-            using (var context = new NorthwindContext())
-            {
-                var categories = context.Categories.ToList();
+            //new DataQueryExamples().GetCategoryByIdAsync(1).Wait();
+            //new DataQueryExamples().GetFirstCategoryOrderByNameAsync().Wait();
+            new DataQueryExamples().GetCategoriesTakeAsync(5).Wait();
 
-                Console.WriteLine(); // add a blank space to separate log information from output
-
-                foreach (var category in categories)
-                {
-                    Console.WriteLine($"Category {category.CategoryName} - {category.Description}");
-                }
-            }
         }
 
         /// <summary>
@@ -60,47 +49,5 @@ namespace EFCoreReview.App
             return new NorthwindContext(dbOptions);
         }
 
-        /// <summary>
-        /// Demonstrate how you can reuse a query.
-        /// The ToList initiates the Sql query.  Each query shows the resulting Sql statement
-        /// Here you can see that although we have included OrderDetails, it knows not to include
-        /// it if the data for the OrderDetails is not needed
-        /// </summary>
-        static void ReviewQuery()
-        {
-            using (var context = new NorthwindContext())
-            {
-                var query = context.Set<Orders>().Include(x => x.OrderDetails);
-
-                var result4 = query.Select(x => x.ShipCountry).Distinct().ToList();
-                /*
-                info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-                      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
-                      SELECT DISTINCT [x].[ShipCountry]
-                      FROM [Orders] AS [x]
-                */
-
-                var result5 = query.Select(x => x.ShipCountry).Distinct().OrderBy(x => x).ToList();
-                /*
-                info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-                      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
-                      SELECT [t].[ShipCountry]
-                      FROM (
-                          SELECT DISTINCT [x].[ShipCountry]
-                          FROM [Orders] AS [x]
-                      ) AS [t]
-                      ORDER BY [t].[ShipCountry]
-                */
-
-                var result6 = query.OrderBy(x => x.ShipCountry).Select(x => x.ShipCountry).Distinct().ToList();
-                /*
-                info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-                      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
-                      SELECT DISTINCT [x].[ShipCountry]
-                      FROM [Orders] AS [x]
-                      ORDER BY [x].[ShipCountry]
-                */
-            }
-        }
     }
 }

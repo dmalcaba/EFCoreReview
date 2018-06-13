@@ -1,4 +1,5 @@
 ﻿using EFCoreReview.Data.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace EFCoreReview.App
             using (var context = new NorthwindContext())
             {
                 var result = context.Products
-                    .Where(p => p.Discontinued == false)
+                    .Where(p => p.Discontinued != false)
                     .Select(g => g.ProductName)
                     .ToList();
 
@@ -24,5 +25,26 @@ namespace EFCoreReview.App
                 }
             }
         }
+
+        public static void TestQuery()
+        {
+            using (var context = new NorthwindContext())
+            {
+                var query = from p in context.Products
+                            where p.Discontinued != false
+                            select p;
+
+                query.ToList();
+            }
+        }
+
+        public static void PassingNullWhereValue()
+        {
+            using (var context = new NorthwindContext())
+            {
+                context.Products.Where(x => true).ToList();
+            }
+        }
+
     }
 }
