@@ -240,5 +240,84 @@ namespace EFCoreReview.App
                       ORDER BY [x].[ShipCountry]
                 */
         }
+
+        /// <summary>
+        /// Regardless of where the order by is, the resulting Sql is the same
+        /// </summary>
+        public async Task GetEmployeeWhereAndOrderBy()
+        {
+            /*
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                  Executed DbCommand (68ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                  SELECT [a].[EmployeeID], [a].[Address], [a].[BirthDate], [a].[City], [a].[Country], [a].[Extension], [a].[FirstName], [a].[HireDate], [a].[HomePhone], [a].[LastName], [a].[Notes], [a].[Photo], [a].[PhotoPath], [a].[PostalCode], [a].[Region], [a].[ReportsTo], [a].[Title], [a].[TitleOfCourtesy]
+                  FROM [Employees] AS [a]
+                  WHERE [a].[TitleOfCourtesy] = N'Mr.'
+                  ORDER BY [a].[Title]
+            */
+
+            var result = await _context.Employees
+                .Where(a => a.TitleOfCourtesy == "Mr.")
+                .OrderBy(a => a.Title)
+                .ToListAsync();
+
+            /*
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                  Executed DbCommand (58ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                  SELECT [a].[EmployeeID], [a].[Address], [a].[BirthDate], [a].[City], [a].[Country], [a].[Extension], [a].[FirstName], [a].[HireDate], [a].[HomePhone], [a].[LastName], [a].[Notes], [a].[Photo], [a].[PhotoPath], [a].[PostalCode], [a].[Region], [a].[ReportsTo], [a].[Title], [a].[TitleOfCourtesy]
+                  FROM [Employees] AS [a]
+                  WHERE [a].[TitleOfCourtesy] = N'Mr.'
+                  ORDER BY [a].[Title]
+            */
+
+            var result2 = await _context.Employees
+                .OrderBy(a => a.Title)
+                .Where(a => a.TitleOfCourtesy == "Mr.")
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Example of selecting a distinct field with where clause and order by.
+        /// Notice the difference between the placement of the order by method
+        /// and the resulting Sql query.
+        /// Placement of the OrderBy matters, although the results are the same,
+        /// the second statement is efficient.
+        /// </summary>
+        public async Task GetDistinctEmployeeTitle()
+        {
+            /*
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                  Executed DbCommand (57ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                  SELECT [t].[Title]
+                  FROM (
+                      SELECT DISTINCT [a].[Title]
+                      FROM [Employees] AS [a]
+                      WHERE [a].[TitleOfCourtesy] = N'Mr.'
+                  ) AS [t]
+                  ORDER BY [t].[Title]
+             */
+
+            var result = await _context.Employees
+                .Where(a => a.TitleOfCourtesy == "Mr.")
+                .Select(a => a.Title)
+                .Distinct()
+                .OrderBy(a => a)
+                .ToListAsync();
+
+            /*
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                  Executed DbCommand (56ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                  SELECT DISTINCT [a].[Title]
+                  FROM [Employees] AS [a]
+                  WHERE [a].[TitleOfCourtesy] = N'Mr.'
+                  ORDER BY [a].[Title]
+            */
+
+            var result2 = await _context.Employees
+                .Where(a => a.TitleOfCourtesy == "Mr.")
+                .Select(a => a.Title)
+                .OrderBy(a => a)
+                .Distinct()
+                .ToListAsync();
+        }
     }
 }

@@ -18,7 +18,9 @@ namespace EFCoreReview.App
 
             //new DataQueryExamples().GetCategoryByIdAsync(1).Wait();
             //new DataQueryExamples().GetFirstCategoryOrderByNameAsync().Wait();
-            new DataQueryExamples().GetCategoriesTakeAsync(5).Wait();
+            //new DataQueryExamples().GetCategoriesTakeAsync(5).Wait();
+            //new DataQueryExamples().GetDistinctEmployeeTitle().Wait();
+            new DataQueryExamples().GetEmployeeWhereAndOrderBy().Wait();
 
         }
 
