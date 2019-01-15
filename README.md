@@ -1,2 +1,2 @@
 # EFCoreReview
-A repository for reviewing and exploring Entity Framework Core 2.0
+A repository for reviewing and exploring Entity Framework Core 2.1
