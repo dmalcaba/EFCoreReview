@@ -6,7 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\EFCoreReview.Data\EFCoreReview.Data.csproj" />
+    <ProjectReference Include="..\MigrationReview\MigrationReview.csproj" />
   </ItemGroup>
 
 </Project>
