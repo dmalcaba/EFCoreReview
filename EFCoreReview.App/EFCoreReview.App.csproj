@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EFCoreReview.Data\EFCoreReview.Data.csproj" />
+    <ProjectReference Include="..\Migration2Review\Migration2Review.csproj" />
     <ProjectReference Include="..\MigrationReview\MigrationReview.csproj" />
   </ItemGroup>
 
