@@ -81,9 +81,7 @@ namespace EFCoreReview.App
 
         /// <summary>
         /// Example of using Take
-        /// TakeLast and TakeWhile is currently not support (EF 2.1)
         /// </summary>
-        /// <param name="count"></param>
         public async Task GetCategoriesTakeAsync(int count)
         {
             /*
@@ -95,11 +93,28 @@ namespace EFCoreReview.App
                       FROM [Categories] AS [c]
                   ) AS [t]
                   ORDER BY [t].[CategoryName]
-             */
+
+            ** This is incorrect.  OrderBy should come first before Take.
+            ** By doing OrderBy first, the resulting SQL statement is more correct
+            ** and what you would expect
 
             var categories = await _context.Categories
                     .Take(count)
                     .OrderBy(a => a.CategoryName)
+                    .ToListAsync();
+            */
+
+            /*
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                  Executed DbCommand (85ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+                  SELECT TOP(@__p_0) [a].[CategoryID], [a].[CategoryName], [a].[Description], [a].[Picture]
+                  FROM [Categories] AS [a]
+                  ORDER BY [a].[CategoryName]
+            */
+
+            var categories = await _context.Categories
+                    .OrderBy(a => a.CategoryName)
+                    .Take(count)
                     .ToListAsync();
 
             PrintResults(categories);
