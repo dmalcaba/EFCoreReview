@@ -334,5 +334,28 @@ namespace EFCoreReview.App
                 .Distinct()
                 .ToListAsync();
         }
+
+        /// <summary>
+        /// Here is an example of a use of multiple order by, mixing it with asc or desc.
+        /// You are also able to order by a column that is not part of the select. To do this
+        /// you'll add the orderby first then the select
+        /// </summary>
+        public async Task GetEmployeeWithMultipleOrderBy()
+        {
+            /*
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                  Executed DbCommand (69ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                  SELECT [a].[LastName], [a].[FirstName]
+                  FROM [Employees] AS [a]
+                  ORDER BY [a].[LastName], [a].[FirstName], [a].[BirthDate] DESC
+            */
+
+            var result = await _context.Employees
+                .OrderBy(a => a.LastName)
+                    .ThenBy(a => a.FirstName)
+                    .ThenByDescending(a => a.BirthDate)
+                .Select(e => new { e.LastName, e.FirstName })
+                .ToListAsync();
+        }
     }
 }
