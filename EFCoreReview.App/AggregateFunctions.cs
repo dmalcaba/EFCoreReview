@@ -4,11 +4,87 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace EFCoreReview.App
 {
+    /// <summary>
+    /// Method-Based Query Syntax Examples: Aggregate Operators
+    /// </summary>
     public class AggregateFunctions
     {
+        public static async Task CountSampleAsync()
+        {
+            /*
+                info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                      Executed DbCommand (30ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                      SELECT COUNT(*)
+                      FROM [Customers] AS [c]
+            */
+
+            using (var context = new NorthwindContext())
+            {
+                //
+                var result = context.Customers
+                    .Count();
+
+                // Async   
+                var result2 = await context.Customers.CountAsync();
+
+            }
+
+            /*
+                info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                        Executed DbCommand (12ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                        SELECT COUNT(*)
+                        FROM [Customers] AS [a]
+                        WHERE [a].[Country] = N'Spain'
+            */
+            using (var context = new NorthwindContext())
+            {
+                var spainCustomer = await context.Customers.Where(a => a.Country == "Spain").CountAsync();
+
+                //alternate
+                var spainCustomerAlt = await context.Customers.CountAsync(a => a.Country == "Spain");
+            }
+        }
+
+        public static async Task MaxSampleAsync()
+        {
+            /*
+                info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                      SELECT MAX([a].[Quantity])
+                      FROM [Order Details] AS [a]
+                      WHERE [a].[OrderID] = 10248
+            */
+
+            using (var context = new NorthwindContext())
+            {
+                var spainCustomer = await context.OrderDetails
+                    .Where(a => a.OrderId == 10248)
+                    .MaxAsync(a => a.Quantity);
+            }
+        }
+
+        public static async Task SumSampleAsync()
+        {
+            /*
+                info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                      SELECT SUM([a].[Quantity] * [a].[UnitPrice])
+                      FROM [Order Details] AS [a]
+                      WHERE [a].[OrderID] = 10248
+            */
+
+            using (var context = new NorthwindContext())
+            {
+                var spainCustomer = await context.OrderDetails
+                    .Where(a => a.OrderId == 10248)
+                    .SumAsync(a => a.Quantity * a.UnitPrice);
+            }
+        }
+
         public static void ReviewSum()
         {
             using (var context = new NorthwindContext())
@@ -41,5 +117,7 @@ namespace EFCoreReview.App
                   LEFT JOIN [Customers] AS [o.Order.Customer0] ON [o.Order0].[CustomerID] = [o.Order.Customer0].[CustomerID]
               */
         }
+
+
     }
 }
