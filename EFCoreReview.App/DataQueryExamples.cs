@@ -33,7 +33,7 @@ namespace EFCoreReview.App
 
             var categories = await _context.Categories.ToListAsync();
 
-            PrintResults(categories);
+            PrintResultsCategories(categories);
         }
 
         public async Task GetFirstCategoryAsync()
@@ -77,6 +77,8 @@ namespace EFCoreReview.App
              */
 
             var category = await _context.Categories.SingleOrDefaultAsync(a => a.CategoryId == id);
+
+            CategoryPrinter(category);
         }
 
         /// <summary>
@@ -117,7 +119,7 @@ namespace EFCoreReview.App
                     .Take(count)
                     .ToListAsync();
 
-            PrintResults(categories);
+            PrintResultsCategories(categories);
         }
 
         /// <summary>
@@ -138,12 +140,7 @@ namespace EFCoreReview.App
                 .Select(p => new { Name = p.CategoryName, Desc = p.Description })
                 .ToListAsync();
 
-            Console.WriteLine(); // add a blank space to separate log information from output
-
-            foreach (var category in categories)
-            {
-                Console.WriteLine($"Category {category.Name} - {category.Desc}");
-            }
+            PrintResults(categories, a => Console.WriteLine($"Category {a.Name} - {a.Desc}"));
         }
 
         /// <summary>
@@ -161,9 +158,11 @@ namespace EFCoreReview.App
                   LEFT JOIN [Categories] AS [a.Category] ON [a].[CategoryID] = [a.Category].[CategoryID]
             */
 
-            var result = await _context.Products
-                .Include(a => a.Category)
+            var products = await _context.Products
+                //.Include(a => a.Category).Take(10)
                 .ToListAsync();
+
+          //  PrintResults(products, a => Console.WriteLine($"Products: {a.ProductName} {a.Category.CategoryName}"));
 
             /*
             info: Microsoft.EntityFrameworkCore.Database.Command[20101]
@@ -182,9 +181,22 @@ namespace EFCoreReview.App
                   ORDER BY [t].[CategoryID]
              */
 
-            var result2 = await _context.Categories
-                .Include(a => a.Products)
+            var categories = await _context.Categories
+                .OrderBy(a => a.CategoryName)
+           //     .Include(a => a.Products)
                 .ToListAsync();
+
+            PrintResults(categories, a => 
+            {
+                Console.WriteLine();
+                Console.WriteLine($"{a.CategoryName}");
+                Console.WriteLine($"{a.Description}");
+                foreach (var product in a.Products.Take(5))
+                {
+                    Console.WriteLine($"\t{product.UnitPrice:c0} \t\t{product.ProductName}");
+                }
+            });
+
         }
 
         /// <summary>
@@ -204,16 +216,6 @@ namespace EFCoreReview.App
                         Avg = g.Average(o => o.Quantity * o.UnitPrice)
                     })
                 .ToListAsync();
-        }
-
-        private static void PrintResults(List<Categories> categories)
-        {
-            Console.WriteLine(); // add a blank space to separate log information from output
-
-            foreach (var category in categories)
-            {
-                Console.WriteLine($"Category {category.CategoryName} - {category.Description}");
-            }
         }
 
         /// <summary>
@@ -275,6 +277,8 @@ namespace EFCoreReview.App
                 .OrderBy(a => a.Title)
                 .ToListAsync();
 
+            PrintResults(result, a => Console.WriteLine($"Employee : {a.TitleOfCourtesy} {a.FirstName} {a.LastName}, {a.Title}"));
+
             /*
             info: Microsoft.EntityFrameworkCore.Database.Command[20101]
                   Executed DbCommand (58ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
@@ -288,6 +292,8 @@ namespace EFCoreReview.App
                 .OrderBy(a => a.Title)
                 .Where(a => a.TitleOfCourtesy == "Mr.")
                 .ToListAsync();
+
+            PrintResults(result, a => Console.WriteLine($"Employee : {a.TitleOfCourtesy} {a.FirstName} {a.LastName}, {a.Title}"));
         }
 
         /// <summary>
@@ -318,6 +324,8 @@ namespace EFCoreReview.App
                 .OrderBy(a => a)
                 .ToListAsync();
 
+            PrintResults(result, a => Console.WriteLine($"Employee Title : {a}"));
+
             /*
             info: Microsoft.EntityFrameworkCore.Database.Command[20101]
                   Executed DbCommand (56ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
@@ -333,6 +341,8 @@ namespace EFCoreReview.App
                 .OrderBy(a => a)
                 .Distinct()
                 .ToListAsync();
+
+            PrintResults(result2, a => Console.WriteLine($"Employee Title : {a}"));
         }
 
         /// <summary>
@@ -356,6 +366,33 @@ namespace EFCoreReview.App
                     .ThenByDescending(a => a.BirthDate)
                 .Select(e => new { e.LastName, e.FirstName })
                 .ToListAsync();
+
+            PrintResults(result, a => Console.WriteLine($"Employee : {a.LastName}, {a.FirstName}"));
         }
+
+
+        #region Output
+        private void PrintResultsCategories(List<Categories> categories)
+        {
+            PrintResults(categories, CategoryPrinter);
+        }
+
+        private static void PrintResults<T>(List<T> items, Action<T> printAction)
+        {
+            Console.WriteLine(); // add a blank space to separate log information from output
+
+            foreach (var item in items)
+            {
+                printAction(item);
+            }
+
+            Console.WriteLine();
+        }
+
+        private void CategoryPrinter(Categories category)
+        {
+            Console.WriteLine($"Category {category.CategoryName} - {category.Description}");
+        } 
+        #endregion
     }
 }
