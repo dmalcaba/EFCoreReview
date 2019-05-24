@@ -17,8 +17,29 @@ namespace EFCoreReview.App
             _context = new NorthwindContext();
         }
 
+        /// <summary>
+        /// This is an example of a table join. 
+        /// Include method generates two database calls 
+        /// </summary>
         public async Task ProductCategoryQueryAsync()
         {
+            /*
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                  Executed DbCommand (65ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                  SELECT [x].[CategoryID], [x].[CategoryName], [x].[Description], [x].[Picture]
+                  FROM [Categories] AS [x]
+                  ORDER BY [x].[CategoryID]
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                  Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                  SELECT [x.Products].[ProductID], [x.Products].[CategoryID], [x.Products].[Discontinued], [x.Products].[ProductName], [x.Products].[QuantityPerUnit], [x.Products].[ReorderLevel], [x.Products].[SupplierID], [x.Products].[UnitPrice], [x.Products].[UnitsInStock], [x.Products].[UnitsOnOrder]
+                  FROM [Products] AS [x.Products]
+                  INNER JOIN (
+                      SELECT [x0].[CategoryID]
+                      FROM [Categories] AS [x0]
+                  ) AS [t] ON [x.Products].[CategoryID] = [t].[CategoryID]
+                  ORDER BY [t].[CategoryID]
+             */
+
             var data = await _context.Categories.Include(x => x.Products).ToListAsync();
         }
 
@@ -368,6 +389,112 @@ namespace EFCoreReview.App
                 .ToListAsync();
 
             PrintResults(result, a => Console.WriteLine($"Employee : {a.LastName}, {a.FirstName}"));
+        }
+
+
+        public async Task WhereInClause()
+        {
+            /*
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                  Executed DbCommand (92ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+                  SELECT DISTINCT TOP(@__p_0) [x].[SupplierID]
+                  FROM [Suppliers] AS [x]
+                  ORDER BY [x].[SupplierID]
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                  Executed DbCommand (9ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                  SELECT [a].[ProductID], [a].[ProductName]
+                  FROM [Products] AS [a]
+                  WHERE [a].[SupplierID] IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+             */
+
+            var supplierIds = await _context.Suppliers
+                .Select(x => x.SupplierId)
+                .OrderBy(x => x)
+                .Distinct()
+                .Take(10)
+                .ToListAsync();
+
+            var result = await _context.Products
+                .Where(a => supplierIds.Contains(a.SupplierId.Value))
+                .Select(a => new { a.ProductId, a.ProductName })
+                .ToListAsync();
+
+            /*
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                  Executed DbCommand (56ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                  SELECT [a].[ProductID], [a].[ProductName]
+                  FROM [Products] AS [a]
+                  WHERE [a].[SupplierID] IN (
+                      SELECT DISTINCT [b].[SupplierID]
+                      FROM [Suppliers] AS [b]
+                  )
+             */
+
+
+            var result2 = await _context.Products
+                .Where(a => (_context.Suppliers
+                            .Select(b => b.SupplierId)
+                            .Distinct())
+                            .Contains(a.SupplierId.Value))
+                .Select(a => new { a.ProductId, a.ProductName })
+                .ToListAsync();
+        }
+
+        public async Task IncludeQuery()
+        {
+            // Include query creates two database calls
+
+            var result0 = await _context.Suppliers
+                .Include(a => a.Products)
+                .ToListAsync();
+
+            Console.WriteLine("=================================");
+
+            // This will generate only one call
+
+            var query = from a in _context.Suppliers
+                        join b in _context.Products on a.SupplierId equals b.SupplierId
+                        select new { a, b };
+
+            var result1 = await query.ToListAsync();
+
+            Console.WriteLine("=================================");
+
+            // This is the method call equivalent of the above query syntax.
+            // Also works the same, the query syntax is much more readable
+
+            var query2 = _context.Suppliers
+                .Join(_context.Products, a => (Int32?)(a.SupplierId),
+                b => b.SupplierId,
+                (a, b) => a);
+
+            var result2 = await query2.ToListAsync();
+
+            Console.WriteLine("=================================");
+
+            // This generates a left join SQL statement
+
+            var query3 = from a in _context.Suppliers
+                         join b in _context.Products on a.SupplierId equals b.SupplierId
+                         into MatchProducts
+                         from mo in MatchProducts.DefaultIfEmpty()
+                         select MatchProducts;
+
+            var result3 = await query3.ToListAsync();
+
+            Console.WriteLine("=================================");
+
+            // Get all Suppliers with no product
+
+            var query4 = from a in _context.Suppliers
+                         join b in _context.Products on a.SupplierId equals b.SupplierId
+                         into MatchProducts
+                         from mo in MatchProducts.DefaultIfEmpty()
+                         where mo == null
+                         select MatchProducts;
+
+            var result4 = await query4.ToListAsync();
+
         }
 
 

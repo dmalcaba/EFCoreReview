@@ -8,7 +8,7 @@ using System.Text;
 
 namespace EFCoreReview.App
 {
-    public class Queryable
+    public class UsingQueryable
     {
         public void QueryEmployee()
         {
@@ -24,10 +24,13 @@ namespace EFCoreReview.App
                 Expression<Func<EmployeeTerritories, int>> expression3 = x => x.Employee.EmployeeId;
 
 
-                var queryOrder = Order(query, "EmployeeId", "ASC");
+               // var queryOrder = Order(query, "EmployeeId", "ASC");
 
-                var query3 = queryOrder.Where(expression);
-                var result = query3.ToList();
+                //var query3 = queryOrder.Where(expression).OrderBy(a => a.Employee.Orders);
+
+                var queryOrderdynamic = query.OrderByDynamic("EmployeeId", QueryableExtensions.Order.Asc);
+
+                var result = queryOrderdynamic.ToList();
 
                 Console.WriteLine(result.Count());
             }
@@ -60,7 +63,6 @@ namespace EFCoreReview.App
 
                 context.Entry(employeeTerritories).Reference(a => a.Employee).Load();
                 context.Entry(employeeTerritories).Reference(a => a.Territory).Query().Load();
-
             }
         }
     }
