@@ -385,10 +385,10 @@ namespace EFCoreReview.App
                 .OrderBy(a => a.LastName)
                     .ThenBy(a => a.FirstName)
                     .ThenByDescending(a => a.BirthDate)
-                .Select(e => new { e.LastName, e.FirstName })
+                .Select(e => new { Last = e.LastName, First = e.FirstName })
                 .ToListAsync();
 
-            PrintResults(result, a => Console.WriteLine($"Employee : {a.LastName}, {a.FirstName}"));
+            PrintResults(result, a => Console.WriteLine($"Employee : {a.Last}, {a.First}"));
         }
 
 
@@ -494,6 +494,98 @@ namespace EFCoreReview.App
                          select MatchProducts;
 
             var result4 = await query4.ToListAsync();
+
+        }
+
+        public async Task ReviewMethodTranslations()
+        {
+            var query = _context.OrderDetails.Where(x => x.UnitPrice.ToString().Contains("0"));
+
+            var result = await query.ToListAsync();
+        }
+
+        /// <summary>
+        /// Use to test and make sure that expressions will evaluate on the server rather than on the client
+        /// </summary>
+        public async Task TestServerSideEvaluationAsync()
+        {
+            var queryV1 = _context.Suppliers
+                            .Include(x => x.Products)
+                                .ThenInclude(y => y.Category)
+                                .Select(z => new { z.CompanyName, z.Products } );
+
+            //var result = await queryV1.ToListAsync();
+
+            /*
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                  Executed DbCommand (120ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                  SELECT [x].[CompanyName], [x].[SupplierID]
+                  FROM [Suppliers] AS [x]
+                  ORDER BY [x].[SupplierID]
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                  Executed DbCommand (60ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                  SELECT [x.Products].[ProductID], [x.Products].[CategoryID], [x.Products].[Discontinued], [x.Products].[ProductName], [x.Products].[QuantityPerUnit], [x.Products].[ReorderLevel], [x.Products].[SupplierID], [x.Products].[UnitPrice], [x.Products].[UnitsInStock], [x.Products].[UnitsOnOrder], [t].[SupplierID]
+                  FROM [Products] AS [x.Products]
+                  INNER JOIN (
+                      SELECT [x0].[SupplierID]
+                      FROM [Suppliers] AS [x0]
+                  ) AS [t] ON [x.Products].[SupplierID] = [t].[SupplierID]
+                  ORDER BY [t].[SupplierID]
+             */
+
+            var queryV2 = _context.Suppliers
+                            .SelectMany(x => x.Products.Select(p => new { p.ProductId, p.ProductName, p.Category }));
+
+
+            // var resultV2 = await queryV2.ToListAsync();
+
+
+            var queryV3 = from a in _context.Suppliers
+                          join b in _context.Products on a.SupplierId equals b.SupplierId
+                                into MatchProducts
+                          from mo in MatchProducts.DefaultIfEmpty()
+                          join c in _context.Categories on mo.CategoryId equals c.CategoryId
+                                into MatchCategories
+                          from mc in MatchCategories.DefaultIfEmpty()
+                        select new { a.SupplierId, a.CompanyName, mo.ProductId, mo.ProductName, mc.CategoryId, CategoryNameDesc = mc.CategoryName + "\n" + mc.CategoryName };
+
+            var resultV3 = await queryV3.ToListAsync();
+
+            /*
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                  Executed DbCommand (86ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                  SELECT [a].[SupplierID], [a].[CompanyName], [b].[ProductID] AS [ProductId], [b].[ProductName], [c].[CategoryID] AS [CategoryId], [c].[CategoryName]
+                  FROM [Suppliers] AS [a]
+                  LEFT JOIN [Products] AS [b] ON [a].[SupplierID] = [b].[SupplierID]
+                  LEFT JOIN [Categories] AS [c] ON [b].[CategoryID] = [c].[CategoryID]
+                  WHERE [c].[CategoryName] = N'Seafood'
+             */
+
+
+            var queryV4 = from a in _context.Suppliers
+                          join b in _context.Products on a.SupplierId equals b.SupplierId
+                                into MatchProducts
+                          from mo in MatchProducts.DefaultIfEmpty().Take(1)
+                          join c in _context.Categories on mo.CategoryId equals c.CategoryId
+                                into MatchCategories
+                          from mc in MatchCategories.DefaultIfEmpty()
+                          select new { a.SupplierId, a.CompanyName, mo.ProductId, mo.ProductName, mc.CategoryId, mc.CategoryName };
+
+           // var resultV4 = await queryV4.Where(x => x.CategoryName == "Seafood").ToListAsync();
+
+            /*
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (107ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[SupplierID] AS [SupplierId0], [a].[Address], [a].[City], [a].[CompanyName], [a].[ContactName], [a].[ContactTitle], [a].[Country], [a].[Fax], [a].[HomePage], [a].[Phone], [a].[PostalCode], [a].[Region], [b].[ProductID], [b].[CategoryID], [b].[Discontinued], [b].[ProductName], [b].[QuantityPerUnit], [b].[ReorderLevel], [b].[SupplierID], [b].[UnitPrice], [b].[UnitsInStock], [b].[UnitsOnOrder]
+      FROM [Suppliers] AS [a]
+      LEFT JOIN [Products] AS [b] ON [a].[SupplierID] = [b].[SupplierID]
+      ORDER BY [SupplierId0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (18ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[CategoryID], [c].[CategoryName]
+      FROM [Categories] AS [c]
+*/
+
 
         }
 
