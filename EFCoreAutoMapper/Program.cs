@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AutoMapper;
+using EFCoreAutoMapper.Queries;
+using System;
 
 namespace EFCoreAutoMapper
 {
@@ -6,7 +8,10 @@ namespace EFCoreAutoMapper
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var config = new MapperConfiguration(cfg => { });
+            var mapper = new Mapper(config);
+
+            new Projection(mapper).AutoProjectionAsync().Wait();
         }
     }
 }
