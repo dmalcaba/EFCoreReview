@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MigrationReview", "Migratio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Migration2Review", "Migration2Review\Migration2Review.csproj", "{E3E4E687-44EF-4C50-9221-33154498917C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCoreAutoMapper", "EFCoreAutoMapper\EFCoreAutoMapper.csproj", "{A4857D92-E695-41F7-9278-6AD502E15407}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCoreAutoMapper", "EFCoreAutoMapper\EFCoreAutoMapper.csproj", "{A4857D92-E695-41F7-9278-6AD502E15407}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCore.Tutorial", "EFCore.Tutorial\EFCore.Tutorial.csproj", "{EAC6E06F-F765-46CF-9758-F92ACF680311}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,10 @@ Global
 		{A4857D92-E695-41F7-9278-6AD502E15407}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4857D92-E695-41F7-9278-6AD502E15407}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A4857D92-E695-41F7-9278-6AD502E15407}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAC6E06F-F765-46CF-9758-F92ACF680311}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAC6E06F-F765-46CF-9758-F92ACF680311}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAC6E06F-F765-46CF-9758-F92ACF680311}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAC6E06F-F765-46CF-9758-F92ACF680311}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -51,6 +57,7 @@ Global
 		{CC006052-823F-43BB-98ED-0C4501B8B42E} = {5AD3DD4D-180A-4029-9AD8-EAA0F8188345}
 		{E3E4E687-44EF-4C50-9221-33154498917C} = {5AD3DD4D-180A-4029-9AD8-EAA0F8188345}
 		{A4857D92-E695-41F7-9278-6AD502E15407} = {5AD3DD4D-180A-4029-9AD8-EAA0F8188345}
+		{EAC6E06F-F765-46CF-9758-F92ACF680311} = {5AD3DD4D-180A-4029-9AD8-EAA0F8188345}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7EB9C96A-687F-4F0F-A7CB-3F63BCD6A96F}
