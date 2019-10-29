@@ -10,6 +10,7 @@ namespace EFCoreAutoMapper.Dtos
         public int EmployeeId { get; set; }
         public string LastName { get; set; }
         public string FirstNameSomething { get; set; }
+        public string FullName { get; set; }
         public string City { get; set; }
         public Date BirthDate { get; set; }
     }

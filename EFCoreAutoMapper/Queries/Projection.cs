@@ -47,6 +47,15 @@ namespace EFCoreAutoMapper.Queries
             var result = await query.ToListAsync();
         }
 
+        public async Task ProjectAfterV2Async()
+        {
+            var query = _context.Employees.Where(x => x.BirthDate < new DateTime(1952, 1, 1));
+
+            var result = await query.ToListAsync();
+
+            var project = _mapper.Map<List<Employees>, List<EmployeeMappedDto>>(result);
+        }
+
         public async Task ProjectBeforeAsync()
         {
             var query = _context.Employees.ProjectTo<EmployeeMappedDto>(_mapper.ConfigurationProvider).Where(x => x.BirthDate.Value < new DateTime(1952, 1, 1));
