@@ -21,7 +21,8 @@ namespace EFCoreAutoMapper
             //new Projection(mapper).ProjectBeforeAsync().Wait();
             //new Projection(mapper).ProjectionExample().Wait();
 
-            new Projection(mapper).ProjectAfterV2Async().Wait();
+            //new Projection(mapper).ProjectAfterV2Async().Wait();
+            new Projection(mapper).ProjectBeforeV2Async().Wait();
 
             Console.ReadLine();
 
