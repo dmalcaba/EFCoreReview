@@ -39,7 +39,10 @@ namespace EFCoreReview.App
                                 d.ShipCountry
                             };
 
-                var result = query.Where(a => a.ShipCountry == "France").OrderBy(a => a.ShipCity).ThenBy(a => a.EmployeeId);
+                var result = query
+                    .Where(a => a.ShipCountry == "France")
+                    .OrderBy(a => a.ShipCity)
+                        .ThenBy(a => a.EmployeeId);
 
                 Console.WriteLine("Record count: {0}", result.ToList().Count);
 
