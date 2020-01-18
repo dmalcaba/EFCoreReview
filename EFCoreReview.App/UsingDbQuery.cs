@@ -34,7 +34,7 @@ namespace EFCoreReview.App
 
             using (var context = new NorthwindContext())
             {
-                var query = context.TerritoryEmployeeOrders.FromSql(
+                var query = context.TerritoryEmployeeOrders.FromSqlRaw(
                     @"select 
 	a.EmployeeID, b.LastName, b.FirstName,
 	 c.TerritoryDescription, d.ShipCity, d.ShipCountry
