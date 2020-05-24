@@ -7,13 +7,14 @@ namespace EFCoreReview.Data.Models
 {
     public partial class NorthwindContext : DbContext
     {
-        public static readonly LoggerFactory MyLoggerFactory
-            = new LoggerFactory(new[]
-            {
-                new ConsoleLoggerProvider((category, level)
-                    => category == DbLoggerCategory.Database.Command.Name
-                       && level == LogLevel.Information, true)
-            });
+        // todo: Update with .NET 3 syntax
+        //public static readonly LoggerFactory MyLoggerFactory
+        //    = new LoggerFactory(new[]
+        //    {
+        //        new ConsoleLoggerProvider((category, level)
+        //            => category == DbLoggerCategory.Database.Command.Name
+        //               && level == LogLevel.Information, true)
+        //    });
 
         public NorthwindContext()
         {
@@ -44,7 +45,7 @@ namespace EFCoreReview.Data.Models
             if (!optionsBuilder.IsConfigured)
             {
                 optionsBuilder
-                    .UseLoggerFactory(MyLoggerFactory)
+                    //.UseLoggerFactory(MyLoggerFactory)
                     .UseSqlServer(ConfigurationManager.ConnectionStrings["NorthwindDb"].ConnectionString);
             }
         }

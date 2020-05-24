@@ -1,5 +1,5 @@
 # EFCoreReview
-A repository for reviewing and exploring Entity Framework Core 2.1
+A repository for reviewing and exploring Entity Framework Core 3.1
 
 I've created sample queries in here that shows how EF's SQL Server provider translates the queries into SQL statements.
 
